@@ -1,13 +1,19 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "*": ["*", "classes/*", "components/*"]
+    },
     "outDir": "./public/js/",
     "sourceMap": true,
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "module": "es6",
+    "moduleResolution": "node",
     "target": "es5",
     "jsx": "react",
-    "allowJS": true
+    "noResolve": false,
+    "removeComments": true,
+    "allowJs": true
   }
 }
