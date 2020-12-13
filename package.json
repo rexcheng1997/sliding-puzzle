@@ -11,6 +11,7 @@
   "author": "Junyi Cheng <junyi-cheng@berkeley.edu>",
   "license": "MIT",
   "devDependencies": {
+    "@svgr/webpack": "^5.5.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "css-loader": "^5.0.1",
