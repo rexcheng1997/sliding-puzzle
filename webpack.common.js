@@ -8,8 +8,8 @@ module.exports = {
     },
     resolve: {
         alias: {
-            classes: './src/classes',
-            components: './src/components'
+            classes: path.resolve('src', 'classes'),
+            components: path.resolve('src', 'components')
         }
     },
     module: {
