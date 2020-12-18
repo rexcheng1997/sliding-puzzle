@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "*": ["src/*", "src/classes/*", "src/components/*"],
+      "*": ["src/*", "src/algorithms/*", "src/classes/*", "src/components/*"],
       "assets/*": ["public/*"]
     },
     "outDir": "./public/js/",

@@ -1,0 +1,375 @@
+// color theme
+$dark-red: #C9182B;
+$red: #F23A3A;
+$light-green: #E3F3AC;
+$green: #44C662;
+
+// global variables
+$nav-height: 100px;
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    color: $dark-red;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #FFBCBC;
+}
+
+.pacifico {
+    font-family: 'Pacifico', cursive !important;
+}
+.loader {
+    margin-left: auto;
+    margin-right: auto;
+    small {
+        margin: 1rem 0;
+    }
+}
+
+nav {
+    width: 100%;
+    height: $nav-height;
+    padding: 1rem 1rem 1rem 2rem;
+    z-index: 1000;
+    .logo {
+        margin-right: min(8%, 2rem);
+        svg {
+            display: block;
+        }
+    }
+    .nav-title {
+        margin: 0;
+        font-weight: normal;
+    }
+    .mobile-menu-toggle {
+        margin-left: auto;
+        button {
+            color: $dark-red;
+        }
+    }
+}
+.mobile-menu {
+    width: min(350px, 90vw);
+    position: fixed;
+    top: $nav-height;
+    right: 0;
+    bottom: 0;
+    padding: 1rem;
+    background-image: url('public/images/christmas-tree.png');
+    background-position: top left;
+    background-size: cover;
+    background-repeat: repeat-y;
+    border-radius: 100px 0;
+    box-shadow: -10px 10px 15px rgba(0, 0, 0, 0.2);
+    z-index: 500;
+    transition: transform 0.4s cubic-bezier(0, 0, 0.2, 1);
+}
+.mobile-menu-transition-enter {
+    transform: translateX(100%);
+}
+.mobile-menu-transition-enter-active {
+    transform: translateX(0);
+}
+.mobile-menu-transition-exit {
+    transform: translateX(0);
+}
+.mobile-menu-transition-exit-active {
+    transform: translateX(100%);
+}
+
+.container {
+    display: grid;
+    width: 100vw;
+    min-height: calc(100vh - #{$nav-height});
+    padding: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+.side-menu {
+    display: none;
+}
+.menu-wrapper {
+    height: 100%;
+    border-radius: 100px 0;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: $red;
+        border-radius: 5px;
+        &:active, &:hover {
+            background-color: $dark-red;
+        }
+    }
+}
+.menu {
+    height: 100%;
+    padding: 3rem 2rem;
+    .menu-group {
+        margin-bottom: 1rem;
+    }
+    .menu-header {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
+        &::after {
+            content: '';
+            display: block;
+            height: 2px;
+            background-color: $dark-red;
+            flex-grow: 1;
+        }
+    }
+    .header-title {
+        margin-right: 2rem;
+        font-size: 1.2em;
+        font-family: 'Pacifico', cursive;
+    }
+    .menu-group-content {
+        padding: 1rem;
+        color: darken($dark-red, 8%);
+        & > *:last-child {
+            margin-bottom: 0 !important;
+        }
+    }
+    .menu-content-text {
+        margin-top: 0;
+        font-size: 0.8rem;
+    }
+    .menu-item-group {
+        margin-bottom: 1rem;
+        &.two-ends {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        &.table {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            align-items: center;
+            justify-items: start;
+            & > * {
+                padding: 0;
+            }
+        }
+    }
+    .menu-item {
+        padding: 0.6rem 0;
+        margin-right: 0.6rem;
+        font-size: 0.8em;
+        font-weight: 700;
+    }
+}
+
+.board-wrapper {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    z-index: 100;
+}
+.board {
+    display: none;
+    position: relative;
+    padding: 20px;
+    background-color: $light-green;
+    border-radius: 10px;
+    box-shadow: inset -3px -3px 8px rgba(0, 0, 0, 0.25), inset 3px 3px 8px rgba(0, 0, 0, 0.25);
+    transition: all 0.6s ease;
+}
+.ready .board {
+    display: block;
+}
+.tile {
+    position: absolute;
+    display: grid;
+    place-items: start center;
+    background-color: $green;
+    box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.25), inset 3px 3px 3px white;
+    .tile-number {
+        margin-left: 3px;
+        color: white;
+        font-family: 'Pacifico', cursive;
+    }
+    &:hover {
+        cursor: pointer;
+        animation: bounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    &.empty {
+        display: none;
+    }
+}
+@keyframes bounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(0.85); }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@media screen and (min-width: 425px) {
+    .mobile-menu {
+        width: min(405px, 90vw);
+    }
+}
+@media screen and (min-width: 950px) {
+    .mobile-menu-toggle, .mobile-menu {
+        display: none;
+    }
+    .container {
+        width: max(860px, 80vw);
+        grid-template-columns: auto 375px;
+        grid-column-gap: 4rem;
+    }
+    .side-menu {
+        display: block;
+        position: sticky;
+        top: $nav-height;
+        max-height: calc(90vh - #{$nav-height});
+        border: 3px solid $red;
+        border-right: none;
+        border-radius: 100px 0;
+        box-shadow: 8px 8px 12px rgba(0, 0, 0, 0.25);
+        z-index: 100;
+    }
+    .side-background {
+        width: calc(375px + 1rem + 10vw);
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('public/images/christmas-tree.png');
+        background-position: top left;
+        background-size: cover;
+        background-repeat: repeat-y;
+    }
+}
+@media screen and (min-width: 1024px) {
+    .container {
+        grid-column-gap: 6rem;
+    }
+    .board-wrapper {
+        place-items: center start;
+    }
+    .side-background {
+        width: calc(375px + 3rem + 10vw);
+    }
+}
+@media screen and (min-width: 1440px) {
+    .container {
+        grid-column-gap: 8rem;
+    }
+    .side-background {
+        width: calc(375px + 20vw);
+    }
+}
+@media screen and (min-height: 930px) {
+    .side-menu {
+        max-height: calc(80vh - #{$nav-height});
+    }
+}
+
+.flex-row {
+    display: flex;
+    flex-flow: row wrap;
+}
+.flex-col {
+    display: flex;
+    flex-flow: column wrap;
+}
+.flex-row, .flex-col {
+    &.nowrap {
+        flex-wrap: nowrap;
+    }
+    &.align-start {
+        align-items: flex-start;
+    }
+    &.align-center {
+        align-items: center;
+    }
+    &.align-end {
+        align-items: flex-end;
+    }
+    &.justify-start {
+        justify-content: flex-start;
+    }
+    &.justify-center {
+        justify-content: center;
+    }
+    &.justify-end {
+        justify-content: flex-end;
+    }
+}
+
+.MuiTypography-root {
+    font-family: 'Open Sans', sans-serif !important;
+}
+.MuiPaper-root {
+    color: $dark-red !important;
+}
+.MuiSnackbarContent-root {
+    background-color: $light-green !important;
+}
+.MuiAlert-root {
+    color: white !important;
+}
+.MuiAlert-icon {
+    align-items: center;
+}
+.MuiInputBase-root, .MuiFormLabel-root {
+    color: darken($dark-red, 8%) !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: darken($dark-red, 8%) !important;
+}
+.MuiCircularProgress-colorSecondary, .MuiButton-textSecondary, .MuiButton-outlinedSecondary {
+    color: $red !important;
+}
+.MuiButton-contained {
+    color: $dark-red !important;
+    background-color: $light-green !important;
+}
+.MuiButton-containedPrimary {
+    color: white !important;
+    background-color: $green !important;
+}
+.MuiButton-containedPrimary.Mui-disabled, .MuiButton-containedSecondary.Mui-disabled {
+    color: rgba(255, 255, 255, 0.5) !important;
+    filter: brightness(1.2);
+}
+.MuiButton-containedSecondary {
+    color: white !important;
+    background-color: $red !important;
+    font-size: 0.8rem !important;
+}
+.MuiButton-outlinedSecondary.Mui-disabled {
+    color: $light-green !important;
+    background-color: $red !important;
+}
+.MuiInputBase-root, .MuiButton-textPrimary, .MuiFormLabel-root {
+    font-family: 'Open Sans', sans-serif !important;
+}
+.MuiOutlinedInput-input {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+.mui-textfield-sm {
+    margin-right: 0.5rem !important;
+    &:last-child {
+        margin-right: 0 !important;
+    }
+    .MuiInputBase-input {
+        width: 30px;
+    }
+}
