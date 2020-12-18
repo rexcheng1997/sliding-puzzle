@@ -150,8 +150,9 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
       this.props.onReady();
     }
     const askToSolvePuzzle = prevProps.mode !== this.props.mode && !this.props.solved;
-    if (askToSolvePuzzle || prevProps.replay !== this.props.replay) {
-      if (!this.props.mode && this.moves.length > 0) {
+    const watchSolution = prevProps.replay !== this.props.replay;
+    if (askToSolvePuzzle || watchSolution) {
+      if (!this.props.mode && watchSolution && this.moves.length > 0) {
         this.setState({ solvingState: 'Returning to the initial state...' });
       }
       this.gameboard.reverse(this.moves);

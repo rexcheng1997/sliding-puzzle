@@ -142,7 +142,7 @@ export default function Menu(props: MenuProps) {
         setWarning('Epsilon must an integer greater than or equal to 1!');
         return;
       }
-      if (Math.max(...dim) > 4 && parseInt(ep.value) < Math.min(...dim)) {
+      if (Math.max(...dim) > 4 && parseInt(ep.value) < 3) {
         setWarning('A larger epsilon is recommended; otherwise, it may take the algorithm too long to finish!');
         return;
       }

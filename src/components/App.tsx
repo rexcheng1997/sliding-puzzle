@@ -9,7 +9,7 @@ export default function App() {
   const [reboot, setReboot] = useState(false); // used to reset the puzzle
   const [dim, setDim] = useState<[number, number]>([3, 3]); // dimension of n-puzzle
   const [puzzleType, setPuzzleType] = useState<puzzleType>('NPuzzle');
-  const [speed, setSpeed] = useState<speed>('Fast');
+  const [speed, setSpeed] = useState<speed>('Medium');
   const [userMode, setUserMode] = useState(true); // userMode: true => user is solving the puzzle
   const [isSolved, setIsSolved] = useState(false);
   const [revert, setRevert] = useState(false); // used to change the puzzle to its initial state
