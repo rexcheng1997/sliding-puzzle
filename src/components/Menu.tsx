@@ -11,9 +11,10 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
 import { dimension } from 'classes/Board';
+import { paramType } from 'components/NPuzzle';
 export type speed = 'Slow' | 'Medium' | 'Fast' | 'Skip';
 export type puzzleType = 'NPuzzle';
-export type algoType = 'staticWeighting-A*' | 'dynamicWeighting-A*';
+export type algoType = 'staticWeighting-A*' | 'dynamicWeighting-A*' | 'alphA*';
 
 export interface MenuProps {
   setReady: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,10 +33,11 @@ export interface MenuProps {
   onTypeChange: React.Dispatch<React.SetStateAction<puzzleType>>;
   algoType: algoType;
   onAlgoChange: React.Dispatch<React.SetStateAction<algoType>>;
-  epsilon: number;
-  onEpsilonChange: React.Dispatch<React.SetStateAction<number>>;
-  pathLength: number;
-  onPathLengthChange: React.Dispatch<React.SetStateAction<number>>;
+  params: { [key in paramType]: number };
+  onEpsilonChange: (value: number) => void;
+  onPathLengthChange: (value: number) => void;
+  onlambdaChange: (value: number) => void;
+  onLambdaChange: (value: number) => void;
 };
 
 interface MenuItemProps {
@@ -49,7 +51,8 @@ export default function Menu(props: MenuProps) {
   const [classes, setClasses] = useState('two-ends');
   const [warning, setWarning] = useState('');
 
-  const { setReady, shufflePuzzle, solved, setToUnsolved, onReturnToInitialState, onWatchAgain, mode, onModeChange, speed, onSpeedChange, dim, onDimensionChange, puzzleType, onTypeChange, algoType, onAlgoChange, epsilon, onEpsilonChange, pathLength, onPathLengthChange } = props;
+  const { setReady, shufflePuzzle, solved, setToUnsolved, onReturnToInitialState, onWatchAgain, mode, onModeChange, speed, onSpeedChange, dim, onDimensionChange, puzzleType, onTypeChange, algoType, onAlgoChange, params, onEpsilonChange, onPathLengthChange, onlambdaChange, onLambdaChange } = props;
+  const { epsilon, pathLength, lambda, Lambda } = params;
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -132,33 +135,71 @@ export default function Menu(props: MenuProps) {
   };
 
   const handleSolvePuzzle = () => {
-    const ep = document.getElementById('epsilon-input') as HTMLInputElement;
-    if (ep) {
-      if (ep.value.length === 0) {
-        setWarning('Epsilon cannot be empty!');
-        return;
-      }
-      if (parseInt(ep.value) < 1) {
-        setWarning('Epsilon must an integer greater than or equal to 1!');
-        return;
-      }
-      if (Math.max(...dim) > 4 && parseInt(ep.value) < 3) {
-        setWarning('A larger epsilon is recommended; otherwise, it may take the algorithm too long to finish!');
-        return;
-      }
-      if (parseInt(ep.value) !== epsilon) {
-        onEpsilonChange(epsilon);
-      }
-    }
+    errorChecking();
     onModeChange(false);
     if (solved) onWatchAgain();
     setTimeout(closeMenu, 2e2);
   };
 
   const handleParamChangeEvent = (param: number, handler: (arg: number) => void) => (e: React.FocusEvent<HTMLInputElement>) => {
+    if (parseInt(e.target.value) === NaN) {
+      setWarning('You must enter a numeric value to the paramters!');
+      return;
+    }
     if (parseInt(e.target.value) !== param) {
       handler(parseInt(e.target.value));
       setToUnsolved();
+    }
+  };
+
+  const errorChecking = () => {
+    const ep = document.getElementById('epsilon-input') as HTMLInputElement;
+    if (ep) {
+      if (ep.value.length === 0) {
+        setWarning('&epsilon; cannot be empty!');
+        return;
+      }
+      if (parseInt(ep.value) < 1) {
+        setWarning('&epsilon; must an integer greater than or equal to 1!');
+        return;
+      }
+      if (Math.max(...dim) > 4 && parseInt(ep.value) < 3) {
+        setWarning('A larger &epsilon; is recommended; otherwise, it may take the algorithm too long to finish!');
+        return;
+      }
+    }
+    const N = document.getElementById('path-length-input') as HTMLInputElement;
+    if (N) {
+      if (N.value.length === 0) {
+        setWarning('Number of moves (N) cannot be empty!');
+        return;
+      }
+      if (parseInt(N.value) === 0) {
+        setWarning('Number of moves (N) must be an integer greater than 0!');
+        return;
+      }
+    }
+    const l = document.getElementById('lambda-input') as HTMLInputElement;
+    if (l) {
+      if (l.value.length === 0) {
+        setWarning('&lambda; cannot be empty!');
+        return;
+      }
+      if (parseInt(l.value) < -1) {
+        setWarning('&lambda; must be greater than or equal to -1!');
+        return;
+      }
+    }
+    const L = document.getElementById('Lambda-input') as HTMLInputElement;
+    if (L) {
+      if (L.value.length === 0) {
+        setWarning('&Lambda; cannot be empty!');
+        return;
+      }
+      if (parseInt(L.value) < lambda) {
+        setWarning('&Lambda; must be greater than or equal to &lambda;!');
+        return;
+      }
     }
   };
 
@@ -227,10 +268,11 @@ export default function Menu(props: MenuProps) {
                 onChange={handleAlgoChange}>
                 <MenuItem value='staticWeighting-A*'>Static Weighting A*</MenuItem>
                 <MenuItem value='dynamicWeighting-A*'>Dynamic Weighting A*</MenuItem>
+                <MenuItem value='alphA*'>AlphA*</MenuItem>
               </Select>
             </FormControl>
           </MenuItemGroup>
-          {(algoType === 'staticWeighting-A*' || algoType === 'dynamicWeighting-A*') && <MenuItemGroup title='&epsilon; value' classes='table' tooltip='Weight of the heuristic function'>
+          {algoType.endsWith('A*') && <MenuItemGroup title='&epsilon; value' classes='table' tooltip='Weight of the heuristic function'>
             <div className='mui-textfield-sm'>
               <TextField id='epsilon-input' label='&epsilon;' defaultValue={epsilon} variant='outlined' size='small' onBlur={handleParamChangeEvent(epsilon, onEpsilonChange)}/>
             </div>
@@ -240,6 +282,18 @@ export default function Menu(props: MenuProps) {
               <TextField id='path-length-input' label='N' defaultValue={pathLength} variant='outlined' size='small' onBlur={handleParamChangeEvent(pathLength, onPathLengthChange)}/>
             </div>
           </MenuItemGroup>}
+          {algoType === 'alphA*' && <>
+            <MenuItemGroup title='&lambda; value' classes='table' tooltip='Parameter value of the &alpha;-perimeter'>
+              <div className='mui-textfield-sm'>
+                <TextField id='lambda-input' label='&lambda;' defaultValue={lambda} variant='outlined' size='small' onBlur={handleParamChangeEvent(lambda, onlambdaChange)}/>
+              </div>
+            </MenuItemGroup>
+            <MenuItemGroup title='&Lambda; value' classes='table' tooltip='Parameter value of the &alpha;-perimeter'>
+              <div className='mui-textfield-sm'>
+                <TextField id='Lambda-input' label='&Lambda;' defaultValue={Lambda} variant='outlined' size='small' onBlur={handleParamChangeEvent(Lambda, onLambdaChange)}/>
+              </div>
+            </MenuItemGroup>
+          </>}
           <Button onClick={handleSolvePuzzle} variant='contained' color='primary' style={{ marginBottom: '1rem' }} disabled={!mode}>
             {solved ? 'Watch Again' : 'Solve It!'}
           </Button>

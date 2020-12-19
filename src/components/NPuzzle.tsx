@@ -1,4 +1,4 @@
-import React, { Component, createRef, useState, useEffect } from 'react';
+import React, { Component, createRef, useEffect } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -12,7 +12,9 @@ import Button from '@material-ui/core/Button';
 import anime from 'animejs';
 import { speed, algoType } from 'components/Menu';
 import Board, { dimension, position, move, reverseMap } from 'classes/Board';
-import { StaticWeightingAStar, DynamicWeightingAStar } from 'algorithms/AStar';
+import { StaticWeightingAStar, DynamicWeightingAStar, AlphaAStar } from 'algorithms/AStar';
+
+export type paramType = 'epsilon' | 'pathLength' | 'lambda' | 'Lambda';
 
 interface puzzleProps {
   dim: dimension;
@@ -22,8 +24,7 @@ interface puzzleProps {
   revert: boolean;
   replay: boolean;
   algorithm: algoType;
-  epsilon: number;
-  pathLength: number
+  params: { [key in paramType]: number };
   solved: boolean;
   onReady: () => void;
   onSolved: () => void;
@@ -61,7 +62,7 @@ const speedMap: { [key in speed]: number } = {
 
 type solverStateType = [number, string, string];
 const algoMap: { [key in algoType]: any } = {
-  'staticWeighting-A*': (epsilon: number) => new StaticWeightingAStar<[number, string, string]>({
+  'staticWeighting-A*': ({ epsilon }: { [key in paramType]: number }) => new StaticWeightingAStar<[number, string, string]>({
     initialValue: [0, '', ''], // cost, moves, state
     setCost: (arg: solverStateType, val: number) => (arg[0] = val + arg[1].length),
     getPriority: (arg: solverStateType) => -arg[0],
@@ -69,7 +70,7 @@ const algoMap: { [key in algoType]: any } = {
     getState: (arg: solverStateType) => arg[2],
     epsilon: epsilon
   }),
-  'dynamicWeighting-A*': (epsilon: number, N: number) => new DynamicWeightingAStar<[number, string, string]>({
+  'dynamicWeighting-A*': ({ epsilon, pathLength }: { [key in paramType]: number }) => new DynamicWeightingAStar<[number, string, string]>({
     initialValue: [0, '', ''], // cost, moves, state
     setCost: (arg: solverStateType, val: number) => (arg[0] = val + arg[1].length),
     getPriority: (arg: solverStateType) => -arg[0],
@@ -77,7 +78,19 @@ const algoMap: { [key in algoType]: any } = {
     getState: (arg: solverStateType) => arg[2],
     getDepth: (arg: solverStateType) => arg[1].length,
     epsilon: epsilon,
-    N: N
+    N: pathLength
+  }),
+  'alphA*': ({ epsilon, lambda, Lambda }: { [key in paramType]: number }) => new AlphaAStar<[number, string, string]>({
+    initialValue: [0, '', ''], // cost, moves, state
+    setCost: (arg: solverStateType, val: number) => (arg[0] += val),
+    getPriority: (arg: solverStateType) => -arg[0],
+    getMoves: (arg: solverStateType) => arg[1],
+    getState: (arg: solverStateType) => arg[2],
+    g: (arg: string) => arg.length,
+    pi: (arg: string) => arg.slice(0, arg.length),
+    epsilon: epsilon,
+    lambda: lambda,
+    Lambda: Lambda
   })
 }
 
@@ -158,7 +171,7 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
       this.gameboard.reverse(this.moves);
       this.moves = [];
       this.setTiles(this.gameboard.flatArray);
-      this.solver = algoMap[this.props.algorithm](this.props.epsilon, this.props.pathLength);
+      this.solver = algoMap[this.props.algorithm](this.props.params);
       setTimeout(this.solvePuzzle(), 2e3 * speedMap[this.props.speed]);
     }
     if (this.props.mode && prevState.tiles !== this.state.tiles && Board.isGoalState(this.state.tiles)) {

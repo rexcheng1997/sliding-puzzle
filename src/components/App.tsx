@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Nav from 'components/Nav';
 import Menu, { speed, puzzleType, algoType } from 'components/Menu';
-import NPuzzle from 'components/NPuzzle';
+import NPuzzle, { paramType } from 'components/NPuzzle';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -15,12 +15,22 @@ export default function App() {
   const [revert, setRevert] = useState(false); // used to change the puzzle to its initial state
   const [watchAgain, setWatchAgain] = useState(false); // used to replay the solution
   const [algoType, setAlgoType] = useState<algoType>('staticWeighting-A*');
-  const [epsilon, setEpsilon] = useState(5); // static weight A*
-  const [pathLength, setPathLength] = useState(100); // dynamic weighting A*
+  const [params, _setParams] = useState<{ [key in paramType]: number }>({
+    epsilon: 5, // static weight A*
+    pathLength: 100, // dynamic weighting A*
+    lambda: 0, // alphaA*
+    Lambda: 5 // alphaA*
+  });
 
   const handlePuzzleSolved = () => {
     setIsSolved(true);
     setUserMode(true);
+  };
+
+  const setParams = (key: paramType) => (value: number) => {
+    const newParams = {...params};
+    newParams[key] = value;
+    _setParams(newParams);
   };
 
   return (<>
@@ -33,11 +43,13 @@ export default function App() {
       dim={dim} onDimensionChange={setDim}
       puzzleType={puzzleType} onTypeChange={setPuzzleType}
       algoType={algoType} onAlgoChange={setAlgoType}
-      epsilon={epsilon} onEpsilonChange={setEpsilon}
-      pathLength={pathLength} onPathLengthChange={setPathLength}/>
+      params={params} onEpsilonChange={setParams('epsilon')}
+      onPathLengthChange={setParams('pathLength')}
+      onlambdaChange={setParams('lambda')}
+      onLambdaChange={setParams('Lambda')}/>
     <main className='container'>
       <div className={ready ? 'board-wrapper ready' : 'board-wrapper'}>
-        <NPuzzle dim={dim} speed={speed} mode={userMode} reset={reboot} revert={revert} replay={watchAgain} algorithm={algoType} epsilon={epsilon} pathLength={pathLength} solved={isSolved} onReady={() => setReady(true)} onSolved={handlePuzzleSolved}/>
+        <NPuzzle dim={dim} speed={speed} mode={userMode} reset={reboot} revert={revert} replay={watchAgain} algorithm={algoType} params={params} solved={isSolved} onReady={() => setReady(true)} onSolved={handlePuzzleSolved}/>
         {!ready && <div className='loader flex-col align-center'>
           <CircularProgress color='secondary'/>
           <small>Generating new puzzle...</small>
@@ -53,8 +65,10 @@ export default function App() {
           dim={dim} onDimensionChange={setDim}
           puzzleType={puzzleType} onTypeChange={setPuzzleType}
           algoType={algoType} onAlgoChange={setAlgoType}
-          epsilon={epsilon} onEpsilonChange={setEpsilon}
-          pathLength={pathLength} onPathLengthChange={setPathLength}/>
+          params={params} onEpsilonChange={setParams('epsilon')}
+          onPathLengthChange={setParams('pathLength')}
+          onlambdaChange={setParams('lambda')}
+          onLambdaChange={setParams('Lambda')}/>
       </div>
       <div className='side-background'/>
     </main>
