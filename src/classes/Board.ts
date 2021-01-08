@@ -42,8 +42,29 @@ export default class Board {
     return true;
   }
 
-  static hash(board: number[]): string {
-    return board.join('');
+  static manhattanDistance(board: number[][]): number {
+    let h = 0;
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] === -1) continue;
+        const row = Math.floor((board[i][j] - 1) / board[i].length),
+              col = (board[i][j] - 1) % board[i].length;
+        h += Math.abs(row - i) + Math.abs(col - j);
+      }
+    }
+    return h;
+  }
+
+  static toString(board: number[][]): string {
+    return board.map(row => row.join(',')).join('|');
+  }
+
+  static get2DArrayRep(s: string): number[][] {
+    return s.split('|').map(row => row.split(',').map(d => parseInt(d)));
+  }
+
+  get get2DArrayRep(): number[][] {
+    return this.arr;
   }
 
   get flatArray(): number[] {
@@ -130,18 +151,5 @@ export default class Board {
     for (let i = moves.length - 1; i >= 0; i--) {
       this.moveTile(reverseMap[moves[i]]);
     }
-  }
-
-  heuristic(): number {
-    let h = 0;
-    for (let i = 0; i < this.arr.length; i++) {
-      for (let j = 0; j < this.arr[i].length; j++) {
-        if (this.arr[i][j] === -1) continue;
-        const row = Math.floor((this.arr[i][j] - 1) / this.arr[i].length),
-              col = (this.arr[i][j] - 1) % this.arr[i].length;
-        h += Math.abs(row - i) + Math.abs(col - j);
-      }
-    }
-    return h;
   }
 };

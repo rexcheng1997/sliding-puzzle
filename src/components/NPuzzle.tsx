@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 import anime from 'animejs';
 import { speed, algoType } from 'components/Menu';
 import Board, { dimension, position, move, reverseMap } from 'classes/Board';
-import { StaticWeightingAStar, DynamicWeightingAStar, AlphaAStar } from 'algorithms/AStar';
+import { AStar, StaticWeightingAStar, DynamicWeightingAStar, AlphAStar } from 'algorithms/AStar';
 
 export type paramType = 'epsilon' | 'pathLength' | 'lambda' | 'Lambda';
 
@@ -60,34 +60,35 @@ const speedMap: { [key in speed]: number } = {
   'Skip': 0
 };
 
-type solverStateType = [number, string, string];
-const algoMap: { [key in algoType]: any } = {
-  'staticWeighting-A*': ({ epsilon }: { [key in paramType]: number }) => new StaticWeightingAStar<[number, string, string]>({
-    initialValue: [0, '', ''], // cost, moves, state
-    setCost: (arg: solverStateType, val: number) => (arg[0] = val + arg[1].length),
-    getPriority: (arg: solverStateType) => -arg[0],
-    getMoves: (arg: solverStateType) => arg[1],
-    getState: (arg: solverStateType) => arg[2],
+type solverStateType = [string, string]; // [state representation of the board, moves]
+const algoMap: {
+  [key in algoType]: (arg: { [key in paramType]: number }) => AStar<solverStateType>
+} = {
+  'staticWeighting-A*': ({ epsilon }: { [key in paramType]: number }) => new StaticWeightingAStar<solverStateType>({
+    initialValue: ['', ''],
+    g: (state: solverStateType) => state[1].length,
+    h: (state: solverStateType) => Board.manhattanDistance(Board.get2DArrayRep(state[0])),
+    getState: (state: solverStateType) => state[0],
+    getMoves: (state: solverStateType) => state[1],
     epsilon: epsilon
   }),
-  'dynamicWeighting-A*': ({ epsilon, pathLength }: { [key in paramType]: number }) => new DynamicWeightingAStar<[number, string, string]>({
-    initialValue: [0, '', ''], // cost, moves, state
-    setCost: (arg: solverStateType, val: number) => (arg[0] = val + arg[1].length),
-    getPriority: (arg: solverStateType) => -arg[0],
-    getMoves: (arg: solverStateType) => arg[1],
-    getState: (arg: solverStateType) => arg[2],
-    getDepth: (arg: solverStateType) => arg[1].length,
+  'dynamicWeighting-A*': ({ epsilon, pathLength }: { [key in paramType]: number }) => new DynamicWeightingAStar<solverStateType>({
+    initialValue: ['', ''],
+    g: (state: solverStateType) => state[1].length,
+    h: (state: solverStateType) => Board.manhattanDistance(Board.get2DArrayRep(state[0])),
+    getState: (state: solverStateType) => state[0],
+    getMoves: (state: solverStateType) => state[1],
+    getDepth: (state: solverStateType) => state[1].length,
     epsilon: epsilon,
     N: pathLength
   }),
-  'alphA*': ({ epsilon, lambda, Lambda }: { [key in paramType]: number }) => new AlphaAStar<[number, string, string]>({
-    initialValue: [0, '', ''], // cost, moves, state
-    setCost: (arg: solverStateType, val: number) => (arg[0] += val),
-    getPriority: (arg: solverStateType) => -arg[0],
-    getMoves: (arg: solverStateType) => arg[1],
-    getState: (arg: solverStateType) => arg[2],
-    g: (arg: string) => arg.length,
-    pi: (arg: string) => arg.slice(0, arg.length),
+  'alphA*': ({ epsilon, lambda, Lambda }: { [key in paramType]: number }) => new AlphAStar<solverStateType>({
+    initialValue: ['', ''],
+    g: (state: solverStateType) => state[1].length,
+    h: (state: solverStateType) => Board.manhattanDistance(Board.get2DArrayRep(state[0])),
+    getState: (state: solverStateType) => state[0],
+    getMoves: (state: solverStateType) => state[1],
+    pi: (state: solverStateType) => [null, state[1].slice(0, state[1].length - 1)],
     epsilon: epsilon,
     lambda: lambda,
     Lambda: Lambda
@@ -100,7 +101,7 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
   private gameboard = new Board(...this.props.dim);
   private moves: move[] = [];
   private solution: move[] = [];
-  private solver: StaticWeightingAStar<solverStateType>;
+  private solver: AStar<solverStateType>;
   state: puzzleState = {
     boardWidth: 0,
     boardHeight: 0,
@@ -274,10 +275,9 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
             if (this.gameboard.checkMove(m)) {
               nextMoves.push(m);
               this.gameboard.moveTile(m);
-              this.solver.add(
-                [0, nextMoves.join(''), Board.hash(this.gameboard.flatArray)],
-                this.gameboard.heuristic()
-              );
+              this.solver.add([
+                Board.toString(this.gameboard.get2DArrayRep), nextMoves.join('')
+              ]);
               this.gameboard.moveTile(reverseMap[m]);
               nextMoves.pop();
             }

@@ -146,6 +146,11 @@ export default function Menu(props: MenuProps) {
       setWarning('You must enter a numeric value to the paramters!');
       return;
     }
+    if (!mode && parseInt(e.target.value) !== param) {
+      setWarning('You are not allowed to change the parameters while the algorithm is running!');
+      e.target.value = param.toString();
+      return;
+    }
     if (parseInt(e.target.value) !== param) {
       handler(parseInt(e.target.value));
       setToUnsolved();

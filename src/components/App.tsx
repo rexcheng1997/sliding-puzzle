@@ -49,7 +49,7 @@ export default function App() {
       onLambdaChange={setParams('Lambda')}/>
     <main className='container'>
       <div className={ready ? 'board-wrapper ready' : 'board-wrapper'}>
-        <NPuzzle dim={dim} speed={speed} mode={userMode} reset={reboot} revert={revert} replay={watchAgain} algorithm={algoType} params={params} solved={isSolved} onReady={() => setReady(true)} onSolved={handlePuzzleSolved}/>
+        {puzzleType === 'NPuzzle' && <NPuzzle dim={dim} speed={speed} mode={userMode} reset={reboot} revert={revert} replay={watchAgain} algorithm={algoType} params={params} solved={isSolved} onReady={() => setReady(true)} onSolved={handlePuzzleSolved}/>}
         {!ready && <div className='loader flex-col align-center'>
           <CircularProgress color='secondary'/>
           <small>Generating new puzzle...</small>
