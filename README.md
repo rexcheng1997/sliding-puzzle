@@ -62,19 +62,20 @@ In the A\* algorithm family below, Manhattan distance is used as the heuristic f
 
         ![5 x 5 N puzzle solved](docs/s0.png)
 
-    ###### Implementation Details
-        - How to move a target tile to its desired position?  
-            Instead of moving the target tile, move the empty tile. Think of the empty tile as the only tile that can move. Move the empty tile next to the target tile such that when the empty tile and the target tile switch positions, the target tile is closer to its desired position. That is, move the target tile towards its desired position one cell a time by moving the empty tile to that cell first.
+    ##### Implementation Details
 
-        - How to move tiles so that they do not mess up the solved ones?  
-            Since we solve the puzzle from top to bottom and left to right in alternate order, it is guaranteed that if we only use the bottom right portion of the puzzle that has not been solved yet as temporary positions that the empty tile can move to, we will not destroy our solved rows and columns.
+    - How to move a target tile to its desired position?  
+        Instead of moving the target tile, move the empty tile. Think of the empty tile as the only tile that can move. Move the empty tile next to the target tile such that when the empty tile and the target tile switch positions, the target tile is closer to its desired position. That is, move the target tile towards its desired position one cell a time by moving the empty tile to that cell first.
 
-        - How to move the last two tiles in the row or column to their desired positions since moving one tile will move the other?  
-            In the case of solving a row, move the last tile in the row to the second to last position in that row, move the second to last tile below the last tile, move the empty tile to the end of that row, and rotate the `2 x 2` grid containing the last two tiles clockwise. ![5 x 5 N puzzle - row 0 last two tiles](docs/rl.png)  
-            In the case of solving a column, move the last tile in the column to the second to last position in that column, move the second to last tile right to the last tile, move the empty tile to the end of that column, and rotate the `2 x 2` grid containing the last two tiles counter-clockwise. ![5 x 5 N puzzle - col 0 last two tiles](docs/cl.png)  
-            However, there are two edge cases, one for row and the other for column. ![5 x 5 N puzzle - row edge case](docs/r.edge.png) ![5 x 5 N puzzle - column edge case](docs/c.edge.png) In both cases, a sequence of moves called "formula" is needed to resolve the problem. The two edge cases presented here are only in one form. The positions of the tiles can be different in other forms of the edge cases but fortunately, it is always possible to transform other forms of the edge cases into the ones shown above, and then apply the formula to tackle them.
+    - How to move tiles so that they do not mess up the solved ones?  
+        Since we solve the puzzle from top to bottom and left to right in alternate order, it is guaranteed that if we only use the bottom right portion of the puzzle that has not been solved yet as temporary positions that the empty tile can move to, we will not destroy our solved rows and columns.
 
-##### Why do we need the greedy algorithm if A* can solve the puzzle in fewer moves?
+    - How to move the last two tiles in the row or column to their desired positions since moving one tile will move the other?  
+        In the case of solving a row, move the last tile in the row to the second to last position in that row, move the second to last tile below the last tile, move the empty tile to the end of that row, and rotate the `2 x 2` grid containing the last two tiles clockwise. ![5 x 5 N puzzle - row 0 last two tiles](docs/rl.png)  
+        In the case of solving a column, move the last tile in the column to the second to last position in that column, move the second to last tile right to the last tile, move the empty tile to the end of that column, and rotate the `2 x 2` grid containing the last two tiles counter-clockwise. ![5 x 5 N puzzle - col 0 last two tiles](docs/cl.png)  
+        However, there are two edge cases, one for row and the other for column. ![5 x 5 N puzzle - row edge case](docs/r.edge.png) ![5 x 5 N puzzle - column edge case](docs/c.edge.png) In both cases, a sequence of moves called "formula" is needed to resolve the problem. The two edge cases presented here are only in one form. The positions of the tiles can be different in other forms of the edge cases but fortunately, it is always possible to transform other forms of the edge cases into the ones shown above, and then apply the formula to tackle them.
+
+#### Why do we need the greedy algorithm if A* can solve the puzzle in fewer moves?
 
 While A\* can give you the optimal solution or suboptimal solution in the case of different variations of the algorithm, it takes time to find such a solution. If you ask A\* to solve a `10 x 10` N puzzle, even finding the suboptimal solution will take more than an entire afternoon. Although the greedy algorithm will not give you the optimal solution in most cases, and sometimes the solution can be pretty bad in terms of the number of moves required to solve the puzzle, it can find a solution pretty fast, at least much faster than the A\*.
 
