@@ -13,6 +13,7 @@ import anime from 'animejs';
 import { speed, algoType } from 'components/Menu';
 import Board, { dimension, position, move, reverseMap } from 'classes/Board';
 import { AStar, StaticWeightingAStar, DynamicWeightingAStar, AlphAStar } from 'algorithms/AStar';
+import { Greedy } from 'algorithms/Greedy';
 
 export type paramType = 'epsilon' | 'pathLength' | 'lambda' | 'Lambda';
 
@@ -60,9 +61,9 @@ const speedMap: { [key in speed]: number } = {
   'Skip': 0
 };
 
-type solverStateType = [string, string]; // [state representation of the board, moves]
+type solverStateType = [string, string];
 const algoMap: {
-  [key in algoType]: (arg: { [key in paramType]: number }) => AStar<solverStateType>
+  [key in algoType]: (params: { [key in paramType]: number }) => AStar<solverStateType> | Greedy<solverStateType>
 } = {
   'staticWeighting-A*': ({ epsilon }: { [key in paramType]: number }) => new StaticWeightingAStar<solverStateType>({
     initialValue: ['', ''],
@@ -92,6 +93,14 @@ const algoMap: {
     epsilon: epsilon,
     lambda: lambda,
     Lambda: Lambda
+  }),
+  'greedy': () => new Greedy<solverStateType>({
+    initialValue: ['', ''],
+    g: (state: solverStateType) => state[1].length,
+    h: (state: solverStateType) => Board.manhattanDistance2(Board.get2DArrayRep(state[0])),
+    getState: (state: solverStateType) => state[0],
+    getMoves: (state: solverStateType) => state[1],
+    createItem: (board: Board, moves: string) => [Board.toString(board.get2DArrayRep), moves]
   })
 }
 
@@ -101,7 +110,7 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
   private gameboard = new Board(...this.props.dim);
   private moves: move[] = [];
   private solution: move[] = [];
-  private solver: AStar<solverStateType>;
+  private solver: AStar<solverStateType> | Greedy<solverStateType>;
   state: puzzleState = {
     boardWidth: 0,
     boardHeight: 0,
@@ -276,7 +285,8 @@ export default class NPuzzle extends Component<puzzleProps, puzzleState> {
               nextMoves.push(m);
               this.gameboard.moveTile(m);
               this.solver.add([
-                Board.toString(this.gameboard.get2DArrayRep), nextMoves.join('')
+                Board.toString(this.gameboard.get2DArrayRep),
+                nextMoves.join('')
               ]);
               this.gameboard.moveTile(reverseMap[m]);
               nextMoves.pop();

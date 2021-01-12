@@ -14,7 +14,7 @@ import { dimension } from 'classes/Board';
 import { paramType } from 'components/NPuzzle';
 export type speed = 'Slow' | 'Medium' | 'Fast' | 'Skip';
 export type puzzleType = 'NPuzzle';
-export type algoType = 'staticWeighting-A*' | 'dynamicWeighting-A*' | 'alphA*';
+export type algoType = 'staticWeighting-A*' | 'dynamicWeighting-A*' | 'alphA*' | 'greedy';
 
 export interface MenuProps {
   setReady: React.Dispatch<React.SetStateAction<boolean>>;
@@ -274,6 +274,7 @@ export default function Menu(props: MenuProps) {
                 <MenuItem value='staticWeighting-A*'>Static Weighting A*</MenuItem>
                 <MenuItem value='dynamicWeighting-A*'>Dynamic Weighting A*</MenuItem>
                 <MenuItem value='alphA*'>AlphA*</MenuItem>
+                {(dim[0] >3 || dim[1] > 3) && <MenuItem value='greedy'>Greedy</MenuItem>}
               </Select>
             </FormControl>
           </MenuItemGroup>
