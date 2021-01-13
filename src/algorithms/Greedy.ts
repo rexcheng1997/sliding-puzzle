@@ -240,6 +240,9 @@ export class Greedy<T> {
         const n = this.board.getDimension[1];
         if (A[0] === B[0] + 1 && A[1] === B[1] && this.board.get2DArrayRep[B[0]][B[1]] === B[0] * n + B[1] + 1) this.performMoves('DRUULDRDLUURD');
         else if (A[0] === B[0] && A[1] === B[1] + 1 && this.board.get2DArrayRep[B[0]][B[1]] === B[0] * n + B[1] + 1) this.performMoves('DRULDLURRDLULDR');
+      } else {
+        console.log(this.board.get2DArrayRep.map(row => row.slice()));
+        console.log(A, B);
       }
     }
   }
