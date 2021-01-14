@@ -1,5 +1,5 @@
 import Board, { position, move, reverseMap } from 'classes/Board';
-import { AStar } from 'algorithms/AStar';
+import { AStar, StaticWeightingAStar } from 'algorithms/AStar';
 
 interface GreedyType<T> {
   initialValue: T;
@@ -22,7 +22,7 @@ export class Greedy<T> {
   constructor({ initialValue, g, h, getState, getMoves, createItem }: GreedyType<T>) {
     this.moves = getMoves(initialValue);
     this.baseCase = false;
-    this.aStarSolver = new AStar<T>({ initialValue, g, h, getState, getMoves });
+    this.aStarSolver = new StaticWeightingAStar<T>({ initialValue, g, h, getState, getMoves, epsilon: 5 });
     this.getState = getState;
     this.getMoves = getMoves;
     this.createItem = createItem;
@@ -54,7 +54,7 @@ export class Greedy<T> {
       return;
     }
     let target: number, dest: position;
-    if ((row <= col && m - row > 3) || n - col < 4) {
+    if ((row <= col && m - row > 3) || n - col < 4) { /// solve row
       for (let j = col; j < n; j++) {
         if (this.board.get2DArrayRep[row][j] !== row * n + j + 1) {
           dest = [row, j];
@@ -64,7 +64,7 @@ export class Greedy<T> {
       }
       if (target === (row + 1) * n - 1) target++;
       else if (target === (row + 1) * n) dest[1]--;
-    } else {
+    } else { // solve column
       for (let i = row; i < m; i++) {
         if (this.board.get2DArrayRep[i][col] !== i * n + col + 1) {
           dest = [i, col];
@@ -166,7 +166,7 @@ export class Greedy<T> {
             break;
           }
         }
-        if (x - 1 > this.board.startRow || !sorted || this.board.get2DArrayRep[x - 1][y] === x * n - 1) {
+        if (!sorted || this.board.get2DArrayRep[x - 1][y] === x * n - 1) {
           this.performMoves(move);
           deadEnd = false;
         }
@@ -201,17 +201,18 @@ export class Greedy<T> {
             break;
           }
         }
-        if (y - 1 > this.board.startColumn || !sorted || this.board.get2DArrayRep[x][y - 1] === (m - 2) * n + y) {
+        if (!sorted || this.board.get2DArrayRep[x][y - 1] === (m - 2) * n + y) {
           this.performMoves(move);
           deadEnd = false;
+        } else {
+          deadEnd = true;
         }
       } else { // move right
         this.performMoves(move);
         deadEnd = false;
       }
     }
-    if (deadEnd) throw new Error('Dead End!');
-    else this._moveEmptyTo(p, obstacle);
+    deadEnd ? console.warn('Dead End!') : this._moveEmptyTo(p, obstacle);
   }
 
   private performMoves(moves: string): void {
